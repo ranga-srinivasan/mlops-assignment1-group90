@@ -11,3 +11,4 @@ joblib
 pytest
 flake8
 black
+prometheus-fastapi-instrumentator
