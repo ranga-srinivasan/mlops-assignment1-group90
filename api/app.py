@@ -19,6 +19,8 @@ import pandas as pd
 
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
+from fastapi import Request
+import time
 
 # -------------------------
 # Logging setup
@@ -101,3 +103,17 @@ def predict(req: PredictRequest):
 
     logger.info(f"Prediction={pred}, Probability={prob:.4f}")
     return PredictResponse(prediction=pred, probability=prob)
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    duration = time.time() - start_time
+
+    logger.info(
+        f"{request.method} {request.url.path} "
+        f"Status: {response.status_code} Duration: {duration:.3f}s"
+    )
+
+    return response
+
