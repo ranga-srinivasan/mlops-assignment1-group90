@@ -2,12 +2,15 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: heart-api-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
+  ingressClassName: nginx
   rules:
     - host: heart.local
       http:
         paths:
-          - path: /
+          - path: /?(.*)
             pathType: Prefix
             backend:
               service:
