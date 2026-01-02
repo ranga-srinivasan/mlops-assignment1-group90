@@ -1,0 +1,6 @@
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigs:
+      - job_name: 'heart-api'
+        static_configs:
+          - targets: ['heart-api-svc.default.svc.cluster.local:80']
