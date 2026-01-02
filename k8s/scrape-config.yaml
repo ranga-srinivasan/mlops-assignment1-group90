@@ -1,0 +1,4 @@
+- job_name: 'heart-api'
+  metrics_path: /metrics
+  static_configs:
+    - targets: ['heart-api-svc.default.svc.cluster.local:80']
