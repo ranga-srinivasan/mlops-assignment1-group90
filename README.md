@@ -97,16 +97,16 @@ docker run -p 8000:8000 heart-api:latest
 - Architecture diagram and all screenshots included
 
 ## 12. Deliverables
-- ✅ GitHub Repo with code, Dockerfile, requirements.txt
-- ✅ Cleaned data and download script
-- ✅ Jupyter notebooks for EDA and evaluation
-- ✅ Unit tests in `tests/`
-- ✅ GitHub Actions workflow YAML
-- ✅ Kubernetes manifests (Helm not used)
-- ✅ Screenshot folder
-- ✅ Written report (docx/pdf)
-- ✅ End-to-end demo video (in videos folder)
-- ❌ [Not applicable] Public API URL (used local Minikube instead)
+- GitHub Repo with code, Dockerfile, requirements.txt
+- Cleaned data and download script
+- Jupyter notebooks for EDA and evaluation
+- Unit tests in `tests/`
+- GitHub Actions workflow YAML
+- Kubernetes manifests (Helm not used)
+- Screenshot folder
+- Written report (docx/pdf)
+- End-to-end demo video (in videos folder)
+- Instead of Public API URL, local Minikube used
 
 ## Repository Link
 [GitHub Repo](https://github.com/ranga-srinivasan/mlops-assignment1-group90.git)
