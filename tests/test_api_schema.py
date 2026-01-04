@@ -1,5 +1,6 @@
 from api.app import PredictRequest
 
+
 def test_predict_request_schema():
     req = PredictRequest(
         age=50, sex=1, cp=3, trestbps=130, chol=250, fbs=0, restecg=0,

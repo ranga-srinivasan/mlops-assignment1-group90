@@ -14,23 +14,29 @@ This directly satisfies the assignment requirements for:
 
 from __future__ import annotations
 
-from pathlib import Path
 import json
-import joblib
-import numpy as np
-import pandas as pd
+from pathlib import Path
 
+import joblib
 import mlflow
 import mlflow.sklearn
-
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
-    accuracy_score, precision_score, recall_score, roc_auc_score, confusion_matrix
+    accuracy_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+    confusion_matrix,
 )
 
-from src.data_processing import DatasetPaths, load_processed_dataset, build_preprocess_pipeline, split_data
+from src.data_processing import (
+    DatasetPaths,
+    load_processed_dataset,
+    build_preprocess_pipeline,
+    split_data,
+)
 
 
 def evaluate_binary(y_true, y_prob, threshold: float = 0.5) -> dict:
@@ -73,7 +79,7 @@ def main():
         "rf": RandomForestClassifier(n_estimators=300, random_state=42),
     }
 
-    # Where we’ll save a “final” local artifact too (useful for API loading)
+    # Save final local artifact (for API loading)
     artifacts_dir = project_root / "artifacts"
     artifacts_dir.mkdir(exist_ok=True)
 
@@ -83,7 +89,6 @@ def main():
 
     for model_name, model in candidates.items():
         with mlflow.start_run(run_name=model_name) as run:
-            # Build end-to-end pipeline: preprocess + model
             clf = Pipeline(steps=[
                 ("preprocess", preprocess.named_steps["preprocess"]),
                 ("model", model),
@@ -91,7 +96,6 @@ def main():
 
             clf.fit(X_train, y_train)
 
-            # Probabilities for class 1
             val_prob = clf.predict_proba(X_val)[:, 1]
             test_prob = clf.predict_proba(X_test)[:, 1]
 
@@ -103,13 +107,10 @@ def main():
             mlflow.log_param("numeric_cols", ",".join(numeric_cols))
             mlflow.log_param("categorical_cols", ",".join(categorical_cols))
 
-            # If the model has parameters, log key ones (safe generic)
             if hasattr(model, "get_params"):
                 for k, v in model.get_params().items():
-                    # Avoid logging massive nested params
                     mlflow.log_param(f"model__{k}", str(v))
 
-            # Log metrics
             for k, v in val_metrics.items():
                 if k != "tn_fp_fn_tp":
                     mlflow.log_metric(f"val_{k}", v)
@@ -117,29 +118,28 @@ def main():
                 if k != "tn_fp_fn_tp":
                     mlflow.log_metric(f"test_{k}", v)
 
-            # Log confusion matrix values as an artifact JSON
             cm_payload = {
                 "val_confusion_tn_fp_fn_tp": val_metrics["tn_fp_fn_tp"],
                 "test_confusion_tn_fp_fn_tp": test_metrics["tn_fp_fn_tp"],
             }
+
             cm_path = artifacts_dir / f"{model_name}_confusion.json"
             cm_path.write_text(json.dumps(cm_payload, indent=2))
             mlflow.log_artifact(str(cm_path))
 
-            # Log the model to MLflow (packaging)
             mlflow.sklearn.log_model(clf, artifact_path="model")
 
-            # Track best by validation ROC-AUC
             if val_metrics["roc_auc"] > best["roc_auc"]:
-                best = {"name": model_name, "roc_auc": val_metrics["roc_auc"], "run_id": run.info.run_id}
+                best = {
+                    "name": model_name,
+                    "roc_auc": val_metrics["roc_auc"],
+                    "run_id": run.info.run_id,
+                }
 
-    # Save best model reference (run_id) for later use
     best_path = artifacts_dir / "best_run.json"
     best_path.write_text(json.dumps(best, indent=2))
     print("Best model:", best)
 
-    # Optionally: download best model locally for the API
-    # (In real projects you might load from MLflow tracking server / registry.)
     best_model_uri = f"runs:/{best['run_id']}/model"
     best_model = mlflow.sklearn.load_model(best_model_uri)
     joblib.dump(best_model, artifacts_dir / "model.joblib")
