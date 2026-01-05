@@ -105,7 +105,7 @@ docker run -p 8000:8000 heart-api:latest
 - Kubernetes manifests (Helm not used)
 - Screenshot folder
 - Written report (docx/pdf)
-- End-to-end demo video (in videos folder)
+- End-to-end demo video (**from Google Drive**): https://drive.google.com/file/d/1jVhmXFbf5mcKs6W3Q9vYiYu625gHQzKQ/view?usp=sharing
 - Instead of Public API URL, local Minikube used
 
 ## Repository Link
